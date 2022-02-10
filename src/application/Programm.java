@@ -11,16 +11,17 @@ public class Programm {
     public static void main(String[] args) {
 
         Connection conn = DB.getConnection();
-        Statement st = null;
-        ResultSet rs = null;
+        Statement st = null; // Statement serve para montar um comando sql para ser executado
+        ResultSet rs = null; // ResultSet contem os dados armazenados em forma de uma tabela
 
         try {
-            conn = DB.getConnection();
+            conn = DB.getConnection(); // faz a conecção com o banco
 
-            st = conn.createStatement();
+            st = conn.createStatement(); // instancia um objeto do tipo Statement
 
-            rs = st.executeQuery("select * from department");
+            rs = st.executeQuery("select * from department"); // faz a consulta sql
 
+            //percorre o ResultSet imprimindo os valores da tabela
             while (rs.next()) {
                 System.out.println(rs.getInt("Id") + ", " + rs.getString("Name"));
             }
