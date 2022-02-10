@@ -2,38 +2,55 @@ package application;
 
 import db.DB;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.text.SimpleDateFormat;
 
 public class Programm {
     public static void main(String[] args) {
-
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Connection conn = DB.getConnection();
-        Statement st = null; // Statement serve para montar um comando sql para ser executado
-        ResultSet rs = null; // ResultSet contem os dados armazenados em forma de uma tabela
+        PreparedStatement st = null;
 
         try {
-            conn = DB.getConnection(); // faz a conecção com o banco
+            conn = DB.getConnection();
 
-            st = conn.createStatement(); // instancia um objeto do tipo Statement
+            /*st = conn.prepareStatement(
+                    "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId)"
+                    + "VALUES"
+                    + "(?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
 
-            rs = st.executeQuery("select * from department"); // faz a consulta sql
+            st.setString(1, "Maria Purple");
+            st.setString(2, "Maria@gmail.com");
+            st.setDate(3, new java.sql.Date(sdf.parse("22/04/1990").getTime()));
+            st.setDouble(4, 4000);
+            st.setInt(5, 4);
+            */
 
-            //percorre o ResultSet imprimindo os valores da tabela
-            while (rs.next()) {
-                System.out.println(rs.getInt("Id") + ", " + rs.getString("Name"));
+            st = conn.prepareStatement("insert into department (Name) values ('D1'),('D2')",
+                    Statement.RETURN_GENERATED_KEYS);
+
+            int rowsAffect =  st.executeUpdate(); //executa o insert e retorna a quantidade de linhas alteradas
+
+            //pegando o id da tabela que foram alteradas/adicionadas.
+            if (rowsAffect > 0 ){
+                ResultSet rs = st.getGeneratedKeys();
+                while (rs.next()){
+                    int id = rs.getInt(1);
+                    System.out.println("Done! id = " + id);
+                }
+            } else {
+                System.out.println("No rows a affected!");
             }
         }
         catch (SQLException e){
             e.printStackTrace();
         }
         finally {
-            DB.closeResultSet(rs);
             DB.closeStatement(st);
-            DB.closeConnection();
+            DB.closeConnection(); // sempre fechar a conecção por último
         }
+
 
     }
 
